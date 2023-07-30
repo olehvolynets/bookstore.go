@@ -7,7 +7,7 @@ build_server:
 
 .PHONY: run_server
 run_server:
-	@./bin/bookstore
+	@./bin/bookstore s
 
 .PHONY: clean
 clean:

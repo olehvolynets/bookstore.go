@@ -6,8 +6,8 @@ import (
 	"bookstore/books"
 )
 
-func Routes(g *bunrouter.Group) {
-	g.WithGroup("/books", func(bg *bunrouter.Group) {
+func Routes(g *bunrouter.CompatGroup) {
+	g.WithGroup("/books", func(bg *bunrouter.CompatGroup) {
 		bg.GET("", books.HandleGetBooks)
 	})
 }
