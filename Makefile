@@ -1,13 +1,29 @@
 .PHONY: all
-all: build_server run_server
+all: bookstore
 
-.PHONY: build_server
-build_server: 
-	@go build -o bin/bookstore ./cmd/server
+.PHONY: all_build
+all_build:
+	@printf "Building bookstore service"
+	@$(MAKE) bookstore_build
+	@printf "\rBuilding bookstore service [DONE]\n"
+	@printf "Building migration engine"
+	@$(MAKE) migrate_build
+	@printf "\rMigration engine build [DONE]\n"
 
-.PHONY: run_server
-run_server:
-	@./bin/bookstore s
+.PHONY: bookstore
+bookstore: bookstore_build bookstore_run
+
+.PHONY: bookstore_build
+bookstore_build: 
+	@go build -o bin/bookstore ./cmd/bookstore
+
+.PHONY: bookstore_run
+bookstore_run:
+	@./bin/bookstore
+
+.PHONY: migrate_build
+migrate_build: 
+	@go build -o bin/migrate ./cmd/migrate
 
 .PHONY: clean
 clean:

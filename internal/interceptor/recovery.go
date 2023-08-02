@@ -5,7 +5,7 @@ import (
 
 	"github.com/uptrace/bunrouter"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 func Recovery() bunrouter.MiddlewareFunc {

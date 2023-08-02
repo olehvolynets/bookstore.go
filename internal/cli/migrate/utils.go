@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 func fetchEnv(name, fallback string) string {

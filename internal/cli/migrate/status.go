@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 var statusCommand = &cobra.Command{

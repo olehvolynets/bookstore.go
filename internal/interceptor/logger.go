@@ -10,7 +10,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/uptrace/bunrouter"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 func ReqLogging() bunrouter.MiddlewareFunc {

@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 type DB struct {

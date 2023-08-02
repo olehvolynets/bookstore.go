@@ -8,25 +8,19 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/uptrace/bunrouter"
-
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 type Server struct {
-	rootRouter *bunrouter.CompatRouter
-	ip         string
-	port       uint
-	listener   net.Listener
+	ip       string
+	port     uint
+	listener net.Listener
 }
 
 type ServerCfgOption func(*Server)
 
-func New(rr *bunrouter.CompatRouter, opts ...ServerCfgOption) (*Server, error) {
-	s := &Server{
-		rootRouter: rr,
-		port:       3000,
-	}
+func New(opts ...ServerCfgOption) (*Server, error) {
+	s := &Server{port: 3000}
 
 	for _, opt := range opts {
 		opt(s)
@@ -45,11 +39,10 @@ func New(rr *bunrouter.CompatRouter, opts ...ServerCfgOption) (*Server, error) {
 	return s, nil
 }
 
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Start(ctx context.Context, handler http.Handler) error {
 	httpServer := http.Server{
 		ReadHeaderTimeout: 10 * time.Second,
-		Addr:              fmt.Sprintf("%s:%d", s.ip, s.port),
-		Handler:           s.rootRouter,
+		Handler:           handler,
 	}
 
 	errCh := make(chan error, 1)

@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 var downCommand = &cobra.Command{

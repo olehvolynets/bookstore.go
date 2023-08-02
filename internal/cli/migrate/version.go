@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/log"
+	"bookstore/internal/log"
 )
 
 var versionFailureMsg = "failed to retireve the DB migration version"

@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/spf13/cobra"
 
-	"bookstore/db"
+	"bookstore/internal/db"
 	"bookstore/pkg/migrate"
 )
 
@@ -23,10 +23,11 @@ var Command = &cobra.Command{
 var migrEngine *migrate.Engine
 
 func init() {
-	config := db.NewConfig("postgres")
+	ctx := context.Background()
+
+	config := db.NewConfig(ctx, "postgres")
 	config.Attrs.Add("sslmode", fetchEnv("DB_SSLMODE", "disable"))
 
-	ctx := context.TODO()
 	conn, err := pgx.Connect(ctx, config.String())
 	if err != nil {
 		panic(err)

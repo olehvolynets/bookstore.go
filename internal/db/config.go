@@ -42,10 +42,10 @@ func (c Config) String() string {
 	return u.String()
 }
 
-func NewConfig(adapter string) *Config {
+func NewConfig(ctx context.Context, adapter string) *Config {
 	c := &Config{Adapter: adapter, Attrs: url.Values{}}
 
-	envconfig.Process(context.Background(), c)
+	envconfig.Process(ctx, c)
 
 	return c
 }

@@ -3,7 +3,7 @@ package rest
 import (
 	"github.com/uptrace/bunrouter"
 
-	"bookstore/books"
+	"bookstore/internal/books"
 )
 
 func Routes(g *bunrouter.CompatGroup) {
