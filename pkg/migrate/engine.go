@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"context"
+	_ "embed"
 	"errors"
 	"fmt"
 	"os"
@@ -20,6 +21,11 @@ var (
 	errCreation = errors.New("failed to create a DB migration")
 )
 
+//go:embed init_template.sql
+var initTemplate []byte
+
+const defaultDir = "database/migrations"
+
 type ErrPartialSuccess struct {
 	Message   string
 	Remaining Migrations
@@ -32,6 +38,46 @@ func (e ErrPartialSuccess) Error() string {
 type Engine struct {
 	db  *pgx.Conn
 	dir string
+}
+
+type Option func(*Engine)
+
+func New(db *pgx.Conn, opts ...Option) *Engine {
+	if db == nil {
+		panic("received nil as DB connection")
+	}
+
+	engine := &Engine{db, defaultDir}
+
+	for _, opt := range opts {
+		opt(engine)
+	}
+
+	ctx := context.Background()
+	err := engine.db.Ping(ctx)
+	if err != nil {
+		panic(errors.Join(errors.New("DB ping failed"), err))
+	}
+
+	_, err = engine.db.Exec(ctx, string(initTemplate))
+	if err != nil {
+		panic(errors.Join(errors.New("failed to create control table (%v)"), err))
+	}
+
+	return engine
+}
+
+func WithDir(dir string) Option {
+	return func(e *Engine) {
+		path, err := filepath.Abs(dir)
+		if err != nil {
+			fmt.Println(err)
+
+			panic(fmt.Sprintf("DB migration directory is invalid (%s)", path))
+		}
+
+		e.dir = dir
+	}
 }
 
 // Creates a migration file.

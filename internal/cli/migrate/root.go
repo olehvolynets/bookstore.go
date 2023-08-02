@@ -10,11 +10,6 @@ import (
 	"bookstore/pkg/migrate"
 )
 
-const (
-	dir                    = "database/migrations"
-	migrationEngineInitErr = "failed to initialize migration engine"
-)
-
 var Command = &cobra.Command{
 	Use:   "migrate COMMAND",
 	Short: "DB migrations management",
@@ -32,7 +27,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	migrEngine = migrate.NewBuilder().SetDir(dir).SetDb(conn).Done()
+	migrEngine = migrate.New(conn)
 
 	Command.AddCommand(upCommand)
 	Command.AddCommand(downCommand)
