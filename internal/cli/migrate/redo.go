@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 var redoCommand = &cobra.Command{
@@ -14,6 +14,8 @@ var redoCommand = &cobra.Command{
 }
 
 func redoCb(_ *cobra.Command, _ []string) {
+	log := logging.NewLoggerFromEnv()
+
 	migs, err := migrEngine.Down(1)
 	if err != nil {
 		log.Error().Err(err).Msg("error while rolling back migrations")

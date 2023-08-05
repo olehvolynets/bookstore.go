@@ -1,15 +1,18 @@
 package interceptor
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/uptrace/bunrouter"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
-func Recovery() bunrouter.MiddlewareFunc {
-	log.Trace().Msg("enabling http handler recovery interceptor")
+func Recovery(ctx context.Context) bunrouter.MiddlewareFunc {
+	log := logging.WithLogSource(logging.FromContext(ctx), "interceptor")
+
+	log.Trace().Msg("enabling http handler recovery")
 
 	return func(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
 		return func(w http.ResponseWriter, req bunrouter.Request) error {

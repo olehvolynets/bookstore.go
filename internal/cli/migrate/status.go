@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 var statusCommand = &cobra.Command{
@@ -37,6 +37,8 @@ func init() {
 }
 
 func statusCb(_ *cobra.Command, _ []string) {
+	log := logging.NewLoggerFromEnv()
+
 	migs, err := migrEngine.Status()
 	if err != nil {
 		log.Fatal().Err(err).Msg("error while retrieving migration status")

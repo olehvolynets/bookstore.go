@@ -1,6 +1,7 @@
 package interceptor
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -10,35 +11,38 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/uptrace/bunrouter"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
-func ReqLogging() bunrouter.MiddlewareFunc {
-	log.Trace().Msg("enabling request logging interceptor")
+func ReqLogging(ctx context.Context) bunrouter.MiddlewareFunc {
+	log := logging.WithLogSource(logging.FromContext(ctx), "interceptor")
+	reqLog := logging.WithLogSource(logging.FromContext(ctx), "bookstore")
 
-	var reqLogger logFn = prettyFormatter
+	log.Trace().Msg("enabling request logging")
+
+	var reqFormatter logFn = prettyFormatter
 
 	return func(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
 		return func(w http.ResponseWriter, req bunrouter.Request) error {
-			rec := NewResponseWriter(w)
+			res := NewResponseWriter(w)
 
 			now := time.Now()
 			err := next(w, req)
 			dur := time.Since(now)
-			statusCode := rec.StatusCode()
+			statusCode := res.StatusCode()
 
 			var evt *zerolog.Event
 			if statusCode < 500 {
-				evt = log.Info()
+				evt = reqLog.Info()
 			} else {
-				evt = log.Error()
+				evt = reqLog.Error()
 			}
 
 			if err != nil {
 				evt.Err(err)
 			}
 
-			reqLogger(evt, statusCode, dur, req.Method, req.URL.String())
+			reqFormatter(evt, statusCode, dur, req.Method, req.URL.String())
 
 			return err
 		}

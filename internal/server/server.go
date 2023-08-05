@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 type Server struct {
@@ -40,6 +40,8 @@ func New(opts ...ServerCfgOption) (*Server, error) {
 }
 
 func (s *Server) Start(ctx context.Context, handler http.Handler) error {
+	log := logging.WithLogSource(logging.FromContext(ctx), "server")
+
 	httpServer := http.Server{
 		ReadHeaderTimeout: 10 * time.Second,
 		Handler:           handler,
@@ -55,11 +57,11 @@ func (s *Server) Start(ctx context.Context, handler http.Handler) error {
 	go func() {
 		<-ctx.Done()
 
-		log.Debug().Msg("server.Start context closed")
+		log.Debug().Msg("context closed")
 		shutdownCtx, done := context.WithTimeout(context.Background(), 5*time.Second)
 		defer done()
 
-		log.Debug().Msg("server.Start shutting down")
+		log.Info().Msg("shutting down")
 		errCh <- httpServer.Shutdown(shutdownCtx)
 	}()
 

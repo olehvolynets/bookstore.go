@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 var versionFailureMsg = "failed to retireve the DB migration version"
@@ -16,6 +16,8 @@ var versionCommand = &cobra.Command{
 }
 
 func versionCb(_ *cobra.Command, _ []string) {
+	log := logging.NewLoggerFromEnv()
+
 	mig, err := migrEngine.CurrentVersion()
 	if err != nil {
 		log.Fatal().Err(err).Msg(versionFailureMsg)

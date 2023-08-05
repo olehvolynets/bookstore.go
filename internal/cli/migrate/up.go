@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 var upCommand = &cobra.Command{
@@ -14,6 +14,8 @@ var upCommand = &cobra.Command{
 }
 
 func upCb(_ *cobra.Command, args []string) {
+	log := logging.NewLoggerFromEnv()
+
 	var count uint64 = 0
 	if len(args) > 0 {
 		count = parseCount(args[0])

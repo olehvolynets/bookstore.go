@@ -3,7 +3,7 @@ package migrate
 import (
 	"github.com/spf13/cobra"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 var createFailureMsg = "nutrition: failed to create a DB migration"
@@ -16,6 +16,8 @@ var createMigrationCommand = &cobra.Command{
 }
 
 func createMigrationCb(_ *cobra.Command, args []string) {
+	log := logging.NewLoggerFromEnv()
+
 	fileNames, err := migrEngine.CreateMigration(args[0])
 	if err != nil {
 		log.Fatal().Err(err).Msg(createFailureMsg)

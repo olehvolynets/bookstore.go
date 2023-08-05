@@ -6,15 +6,20 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/rs/zerolog"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 type DB struct {
 	Pool *pgxpool.Pool
+	Log  *zerolog.Logger
 }
 
 func New(ctx context.Context, cfg *Config) (*DB, error) {
+	globalLogger := logging.FromContext(ctx)
+	logger := logging.WithLogSource(globalLogger, "db")
+
 	pgxConfig, err := pgxpool.ParseConfig(cfg.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse connection string: %w", err)
@@ -31,10 +36,12 @@ func New(ctx context.Context, cfg *Config) (*DB, error) {
 		return nil, fmt.Errorf("failed to create connection pool: %w", err)
 	}
 
-	return &DB{pool}, nil
+	logger.Info().Msg("creating connection pool")
+
+	return &DB{pool, &logger}, nil
 }
 
 func (db *DB) Close(_ context.Context) {
-	log.Info().Msg("closing connection pool")
+	db.Log.Info().Msg("closing connection pool")
 	db.Pool.Close()
 }

@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"bookstore/internal/log"
+	"bookstore/internal/logging"
 )
 
 func fetchEnv(name, fallback string) string {
@@ -17,6 +17,8 @@ func fetchEnv(name, fallback string) string {
 }
 
 func parseCount(sCount string) uint64 {
+	log := logging.NewLoggerFromEnv()
+
 	count, err := strconv.ParseUint(sCount, 10, strconv.IntSize)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to read migrations count")
