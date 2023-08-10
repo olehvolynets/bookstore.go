@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/sethvargo/go-envconfig"
 	"github.com/spf13/cobra"
 
 	"bookstore/internal/db"
@@ -20,10 +21,12 @@ var migrEngine *migrate.Engine
 func init() {
 	ctx := context.Background()
 
-	config := db.NewConfig(ctx, "postgres")
-	config.Attrs.Add("sslmode", fetchEnv("DB_SSLMODE", "disable"))
+	conf := db.Config{}
+	if err := envconfig.Process(ctx, &conf); err != nil {
+		panic(err)
+	}
 
-	conn, err := pgx.Connect(ctx, config.String())
+	conn, err := pgx.Connect(ctx, conf.String())
 	if err != nil {
 		panic(err)
 	}
