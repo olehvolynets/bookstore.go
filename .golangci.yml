@@ -1,0 +1,18 @@
+run:
+  tests: true
+  go: 1.20
+linters:
+  enable:
+  - errcheck
+  - gosimple
+  - govet
+  - ineffassign
+  - staticcheck
+  - unused
+  - bodyclose
+  - exhaustive
+  - errorlint
+  - gocritic
+  - godot
+  - gofumpt
+  - zerologlint
