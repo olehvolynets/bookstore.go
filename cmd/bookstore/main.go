@@ -9,6 +9,7 @@ import (
 	"github.com/uptrace/bunrouter"
 
 	"bookstore/api/rest"
+	"bookstore/internal/bookstore"
 	"bookstore/internal/db"
 	"bookstore/internal/interceptor"
 	"bookstore/internal/logging"
@@ -46,8 +47,12 @@ func main() {
 
 	router.WithGroup("/api", rest.Routes)
 
-	dbConfig := db.NewConfig(ctx, "postgres")
-	db, err := db.New(ctx, dbConfig)
+	appConfig, err := bookstore.NewConfig(ctx)
+	if err != nil {
+		appLog.Fatal().Err(err).Send()
+	}
+
+	db, err := db.New(ctx, &appConfig.Database)
 	if err != nil {
 		appLog.Fatal().Err(err).Msg("unable to create a db connection pool")
 	}
