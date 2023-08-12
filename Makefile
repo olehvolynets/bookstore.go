@@ -28,3 +28,7 @@ migrate_build:
 .PHONY: clean
 clean:
 	@rm -rf bin/**/*
+
+.PHONY: lint
+lint:
+	@golangci-lint run
