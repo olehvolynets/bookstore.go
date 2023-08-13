@@ -7,7 +7,7 @@ import (
 )
 
 type ServerEnv struct {
-	db *db.DB
+	db *db.DB // nolint:unused
 }
 
 func New(ctx context.Context) {}

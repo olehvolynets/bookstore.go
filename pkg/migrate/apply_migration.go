@@ -1,6 +1,9 @@
 package migrate
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type applyMigrationCb func(version string) error
 
@@ -13,17 +16,28 @@ func (eng *Engine) applyMigration(version, query string, cb applyMigrationCb) er
 
 	_, err = tx.Exec(ctx, query)
 	if err != nil {
-		tx.Rollback(ctx)
-		return err
+		rbErr := tx.Rollback(ctx)
+		if rbErr == nil {
+			return err
+		}
+
+		return errors.Join(err, rbErr)
 	}
 
 	err = cb(version)
 	if err != nil {
-		tx.Rollback(ctx)
-		return err
+		rbErr := tx.Rollback(ctx)
+		if rbErr == nil {
+			return err
+		}
+
+		return errors.Join(err, rbErr)
 	}
 
-	tx.Commit(ctx)
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
