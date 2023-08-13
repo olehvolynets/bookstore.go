@@ -1,20 +1,10 @@
 package migrate
 
 import (
-	"os"
 	"strconv"
 
 	"bookstore/internal/logging"
 )
-
-func fetchEnv(name, fallback string) string {
-	val, ok := os.LookupEnv(name)
-	if !ok {
-		return fallback
-	}
-
-	return val
-}
 
 func parseCount(sCount string) uint64 {
 	log := logging.NewLoggerFromEnv()

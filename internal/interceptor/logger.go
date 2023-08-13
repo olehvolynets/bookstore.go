@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/fatih/color"
@@ -20,7 +21,12 @@ func ReqLogging(ctx context.Context) bunrouter.MiddlewareFunc {
 
 	log.Trace().Msg("enabling request logging")
 
-	var reqFormatter logFn = prettyFormatter
+	var reqFormatter logFn
+	if os.Getenv("LOG_MODE") == "structured" {
+		reqFormatter = structuredFormatter
+	} else {
+		reqFormatter = prettyFormatter
+	}
 
 	return func(next bunrouter.HandlerFunc) bunrouter.HandlerFunc {
 		return func(w http.ResponseWriter, req bunrouter.Request) error {
@@ -51,16 +57,22 @@ func ReqLogging(ctx context.Context) bunrouter.MiddlewareFunc {
 
 type logFn func(evt *zerolog.Event, status int, dur time.Duration, met string, url string)
 
-func structuredFormatter(_ *zerolog.Event, _ int, _ time.Duration, _ string, _ string) {
-	// TODO: add structured logging for non-development env
+func structuredFormatter(
+	evt *zerolog.Event,
+	status int,
+	dur time.Duration,
+	meth string,
+	url string,
+) {
+	evt.Int("status", status).Dur("duration", dur).Str("method", meth).Str("url", url).Send()
 }
 
-func prettyFormatter(evt *zerolog.Event, status int, dur time.Duration, met string, url string) {
+func prettyFormatter(evt *zerolog.Event, status int, dur time.Duration, meth string, url string) {
 	evt.Msg(
 		fmt.Sprint(
 			formatStatus(status),
 			fmt.Sprintf(" %10s ", dur.Round(time.Microsecond)),
-			formatMethod(met),
+			formatMethod(meth),
 			" ",
 			url,
 		),
