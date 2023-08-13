@@ -1,7 +1,13 @@
 package main
 
-import "bookstore/internal/cli/migrate"
+import (
+	"log"
+
+	"bookstore/internal/cli/migrate"
+)
 
 func main() {
-	migrate.Command.Execute()
+	if err := migrate.Command.Execute(); err != nil {
+		log.Fatal(err)
+	}
 }

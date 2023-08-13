@@ -6,7 +6,7 @@ import (
 )
 
 type BooksInDB struct {
-	db *db.DB
+	db *db.DB // nolint:unused
 }
 
 func (b *BooksInDB) FindById(id uint) (*model.Book, error) {
