@@ -1,14 +1,13 @@
 package server
 
 import (
+	"bookstore/internal/logging"
 	"context"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"time"
-
-	"bookstore/internal/logging"
 )
 
 type Server struct {
@@ -62,6 +61,7 @@ func (s *Server) Start(ctx context.Context, handler http.Handler) error {
 		defer done()
 
 		log.Info().Msg("shutting down")
+		time.Sleep(5 * time.Second)
 		errCh <- httpServer.Shutdown(shutdownCtx)
 	}()
 

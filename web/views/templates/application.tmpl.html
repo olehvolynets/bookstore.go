@@ -1,0 +1,28 @@
+{{ define "application_template" }}
+<!DOCTYPE html>
+
+<html>
+    {{ template "application_head" }}
+
+    <body>
+        Hello, world!
+
+        {{ .Foo }}
+        <ul>
+            {{ range .Els }}
+                <li>{{ . }}</li>
+            {{ end }}
+        </ul>
+
+        {{ with .F }}
+        <p>{{ . }}</p>
+        {{ end }}
+
+        {{ if true }}
+            True branch
+        {{ else }}
+            False branch
+        {{ end }}
+    </body>
+</html>
+{{ end }}

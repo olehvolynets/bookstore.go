@@ -1,19 +1,20 @@
 package main
 
 import (
-	"context"
-	"flag"
-	"os/signal"
-	"syscall"
-
-	"github.com/uptrace/bunrouter"
-
-	"bookstore/api/rest"
 	"bookstore/internal/bookstore"
 	"bookstore/internal/db"
 	"bookstore/internal/interceptor"
 	"bookstore/internal/logging"
 	"bookstore/internal/server"
+	"context"
+	"flag"
+	"html/template"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/uptrace/bunrouter"
 )
 
 var port uint = *flag.Uint("port", 3000, "port for the server")
@@ -36,6 +37,10 @@ func main() {
 	}()
 
 	// 1. Create config (parse env vars and create a struct)
+	appConfig, err := bookstore.NewConfig(ctx)
+	if err != nil {
+		appLog.Fatal().Err(err).Send()
+	}
 	// 2. Create env (stores db pointers and stuff)
 	// 3. Create application server(s) (for books, authros, etc.), it will generate http.Handler
 	// 4. Create http server and pass http.Handler from step 3
@@ -45,12 +50,25 @@ func main() {
 		bunrouter.Use(interceptor.ReqLogging(ctx)),
 	).Compat()
 
-	router.WithGroup("/api", rest.Routes)
+	wd, _ := os.Getwd()
+	fs := http.FileServer(http.Dir(wd + "/web/static"))
+	router.GET("/static/*file", http.StripPrefix("/static/", fs).ServeHTTP)
 
-	appConfig, err := bookstore.NewConfig(ctx)
-	if err != nil {
-		appLog.Fatal().Err(err).Send()
-	}
+	router.GET("/", func(w http.ResponseWriter, r *http.Request) {
+		temp := template.Must(template.ParseFiles(wd + "/cmd/bookstore/index.html"))
+		err := temp.Execute(w, struct {
+			Foo uint
+			Els []string
+			F   any
+		}{
+			Foo: 123,
+			Els: []string{"asd", "foo", "bar"},
+			F:   true,
+		})
+		if err != nil {
+			appLog.Warn().Err(err).Send()
+		}
+	})
 
 	db, err := db.New(ctx, &appConfig.Database)
 	if err != nil {
@@ -58,12 +76,12 @@ func main() {
 	}
 	defer db.Close(ctx)
 
-	s, err := server.New(server.WithPort(port))
+	tcpServer, err := server.New(server.WithPort(port))
 	if err != nil {
 		appLog.Fatal().Err(err).Send()
 	}
 
-	err = s.Start(ctx, router)
+	err = tcpServer.Start(ctx, router)
 	done()
 	if err != nil {
 		appLog.Fatal().Err(err).Send()
